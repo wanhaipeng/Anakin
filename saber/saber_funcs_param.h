@@ -1,5 +1,4 @@
-/* Copyright (c) 2018 Baidu, Inc. All Rights Reserved.
-
+/* Copyright (c) 2018 Anakin Authors, Inc. All Rights Reserved.
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -38,27 +37,24 @@ struct MatMulParam {
     bool operator==(const MatMulParam &right) {
         bool comp_eq = true;
         comp_eq = comp_eq && (_is_transpose_X == right._is_transpose_X);        
-        comp_eq = comp_eq && (_is_transpose_Y == right._is_transpose_Y);        
+        comp_eq = comp_eq && (_is_transpose_Y == right._is_transpose_Y);
+        return comp_eq;
     }
 
     bool _is_transpose_X{false};
     bool _is_transpose_Y{false};
-    int _M = 0;
-    int _N = 0;
-    int _K = 0;
-    int _B = 0;//batch_size
+    int _m = 0;
+    int _n = 0;
+    int _k = 0;
+    int _b = 0;//batch_size
 
 };
 
-    
 //should design this one for pick_best_specify()
 enum ImplEnum{
     VENDER_IMPL = 0,
     SABER_IMPL
 };
-
-
-
 
 enum SequencePoolType{
     Sequence_pool_unknow = 0,
@@ -190,71 +186,83 @@ private:
 };
 
 template <typename opTensor>
-struct LSTMParam{
+struct LstmParam{
 
-
-
-    LSTMParam() :
-             weight_tensor(nullptr)
+    LstmParam() :
+            weight_tensor(nullptr)
             ,bias_tensor(nullptr)
             ,init_hidden_tensor(nullptr)
             ,dropout_param(1.0f)
             ,num_direction(1)
             ,num_layers(1)
             ,is_reverse(false)
+            ,input_activity(Active_unknow)
             ,gate_activity(Active_sigmoid)
             ,cell_activity(Active_tanh)
             ,candidate_activity(Active_tanh)
             ,with_peephole(true)
+            ,skip_input(false)
 
     {}
 
-    LSTMParam(opTensor* weight_in, opTensor* bias_in,
-             ActiveType gate_activity_in=Active_sigmoid, ActiveType cell_activity_in=Active_tanh,
-                     ActiveType candidate_activity_in=Active_tanh,bool with_peephole_in=true,
-             bool is_reverse_in=false,opTensor* hidden_init_in=nullptr,
-             float dropout_param_in=1.f
-            ,int num_direction_in=1,int numLayers_in=1)
+    LstmParam(opTensor* weight_in, opTensor* bias_in,
+              opTensor* hidden_init_in = nullptr,
+              ActiveType input_activity = Active_unknow,
+              ActiveType gate_activity_in = Active_sigmoid,
+              ActiveType cell_activity_in = Active_tanh,
+              ActiveType candidate_activity_in = Active_tanh,
+              bool with_peephole_in = true,
+              bool skip_input_in = false,
+              bool is_reverse_in = false,
+              float dropout_param_in = 1.f,
+              int num_direction_in = 1,
+              int numLayers_in = 1)
             :
-             weight_tensor(weight_in)
+            weight_tensor(weight_in)
             ,bias_tensor(bias_in)
             ,dropout_param(dropout_param_in)
             ,num_direction(num_direction_in)
             ,num_layers(numLayers_in)
             ,is_reverse(is_reverse_in)
+            ,input_activity(input_activity)
             ,gate_activity(gate_activity_in)
             ,candidate_activity(candidate_activity_in)
             ,cell_activity(cell_activity_in)
             ,init_hidden_tensor(hidden_init_in)
             ,with_peephole(with_peephole_in)
+            ,skip_input(skip_input_in)
     {}
 
 
-    LSTMParam &operator=(const LSTMParam &right) {
+    LstmParam &operator=(const LstmParam &right) {
         weight_tensor = right.weight_tensor;
         dropout_param=right.dropout_param;
         num_direction=right.num_direction;
         num_layers=right.num_layers;
         bias_tensor = right.bias_tensor;
+        input_activity=right.input_activity;
         gate_activity=right.gate_activity;
         cell_activity=right.cell_activity;
         candidate_activity=right.candidate_activity;
         with_peephole=right.with_peephole;
+        skip_input=right.skip_input;
         is_reverse=right.is_reverse;
         init_hidden_tensor=right.init_hidden_tensor;
         return *this;
     }
 
-    bool operator==(const LSTMParam &right) {
+    bool operator==(const LstmParam &right) {
         bool comp_eq = true;
         comp_eq = comp_eq && (weight_tensor == right.weight_tensor);
         comp_eq = comp_eq && (dropout_param == right.dropout_param);
         comp_eq = comp_eq && (num_direction == right.num_direction);
         comp_eq = comp_eq && (num_layers == right.num_layers);
         comp_eq = comp_eq && (bias_tensor == right.bias_tensor);
+        comp_eq = comp_eq && (input_activity==right.input_activity);
         comp_eq = comp_eq && (gate_activity==right.gate_activity);
         comp_eq = comp_eq && (cell_activity==right.cell_activity);
         comp_eq = comp_eq && (with_peephole==right.with_peephole);
+        comp_eq = comp_eq && (skip_input==right.skip_input);
         comp_eq = comp_eq && (candidate_activity==right.candidate_activity);
         comp_eq = comp_eq && (is_reverse=right.is_reverse);
         comp_eq = comp_eq && (init_hidden_tensor==right.init_hidden_tensor);
@@ -276,16 +284,52 @@ struct LSTMParam{
     int num_direction;
     float dropout_param;
     int num_layers;
+    ActiveType input_activity;
     ActiveType gate_activity;
     ActiveType cell_activity;
     ActiveType candidate_activity;
     bool is_reverse;
     bool with_peephole;
+    // skip input (X * [Wix, Wfx, Wcx, Wox]) or not;
+    // if true, the input's memory layout should be total_seq_len * (4 * hidden_size),
+    // and you should calc this information in fc layer before;
+    // otherwise the input's memory layout should be total_seq_len * input_size;
+    bool skip_input;
 private:
     opTensor* weight_tensor;
     opTensor* bias_tensor;
     opTensor* init_hidden_tensor;
 };
+
+
+template <typename opTensor>
+struct LstmUnitParam{
+
+    LstmUnitParam() :
+            forget_bias(0.f)
+    {}
+
+    LstmUnitParam(float forget_bias_in)
+            :
+            forget_bias(forget_bias_in)
+    {}
+
+
+    LstmUnitParam &operator=(const LstmUnitParam &right) {
+        forget_bias = right.forget_bias;
+        return *this;
+    }
+
+    bool operator==(const LstmUnitParam &right) {
+        bool comp_eq = true;
+        comp_eq = comp_eq && (forget_bias == right.forget_bias);
+        return comp_eq;
+    }
+    float forget_bias;
+private:
+
+};
+
 
 
 template <typename opTensor>
@@ -736,27 +780,56 @@ struct BatchnormParam {
 };
 
 template <typename opTensor>
+struct PreluParam {
+    PreluParam() = default;
+    PreluParam(bool is_channel_shared, opTensor* input_slope) {
+        channel_shared = is_channel_shared;
+        slope = input_slope;
+    }
+    PreluParam(const PreluParam<opTensor>& right) {
+        channel_shared = right.channel_shared;
+        slope = right.slope;
+    }
+    PreluParam<opTensor>& operator=(const PreluParam<opTensor>& right) {
+        this->channel_shared = right.channel_shared;
+        this->slope = right.slope;
+        return *this;
+    }
+    bool operator==(const PreluParam<opTensor>& right) {
+        bool flag = this->channel_shared == right.channel_shared;
+        return flag && (this->slope == right.slope);
+    }
+    bool channel_shared{false};
+    opTensor* slope{nullptr};
+};
+
+template <typename opTensor>
 struct ActivationParam {
     typedef typename opTensor::Dtype DataDtype;
     ActivationParam()
             : active(Active_unknow)
             , negative_slope(DataDtype(-1))
-            , coef(DataDtype(-1)) {}
+            , coef(DataDtype(-1))
+            , prelu_param(PreluParam<opTensor>(false, nullptr)) {}
     ActivationParam(ActiveType act, DataDtype n_slope = DataDtype(0),
-                    DataDtype co = DataDtype(1))
+                    DataDtype co = DataDtype(1), 
+                    PreluParam<opTensor> prelu = PreluParam<opTensor>(false, nullptr))
             : active(act)
             , negative_slope(n_slope)
             , coef(co)
+            , prelu_param(prelu)
     {}
     ActivationParam(const ActivationParam &right)
             : active(right.active)
             , negative_slope(right.negative_slope)
             , coef(right.coef)
+            , prelu_param(right.prelu_param)
     {}
     ActivationParam &operator=(const ActivationParam &right) {
         active = right.active;
         negative_slope = right.negative_slope;
         coef = right.coef;
+        prelu_param = right.prelu_param;
         return *this;
     }
     bool operator==(const ActivationParam &right) {
@@ -764,6 +837,7 @@ struct ActivationParam {
         comp_eq = comp_eq && (active == right.active);
         comp_eq = comp_eq && (negative_slope == right.negative_slope);
         comp_eq = comp_eq && (coef == right.coef);
+        comp_eq = comp_eq && (prelu_param == right.prelu_param);
         return comp_eq;
     }
     bool has_negative_slope(){
@@ -772,6 +846,7 @@ struct ActivationParam {
     ActiveType active;
     DataDtype negative_slope;
     DataDtype coef;
+    PreluParam<opTensor> prelu_param;
 };
 template <typename opTensor>
 struct ScaleParam {
@@ -887,6 +962,62 @@ struct PoolingParam {
 };
 
 template <typename opTensor>
+struct SequenceConvParam {
+    SequenceConvParam()
+            : filter_tensor(nullptr),
+              padding_tensor(nullptr),
+              context_length(1),
+              context_start(0),
+              context_stride(1),
+              padding_trainable(false)
+    {}
+    SequenceConvParam(opTensor* filter_tensor_in,int context_length_in,
+                      int context_start_in=0,int context_stride_in=1,bool padding_trainable_in=false,
+                              opTensor* padding_tensor_in= nullptr)
+            : filter_tensor(filter_tensor_in),
+              padding_tensor(padding_tensor_in),
+              context_length(context_length_in),
+              context_start(context_start_in),
+              context_stride(context_stride_in),
+              padding_trainable(padding_trainable_in)
+    {}
+    SequenceConvParam(const SequenceConvParam &right)
+            : filter_tensor(right.filter_tensor),
+              padding_tensor(right.padding_tensor),
+              context_length(right.context_length),
+              context_start(right.context_start),
+              context_stride(right.context_stride),
+              padding_trainable(right.padding_trainable)
+    {}
+    SequenceConvParam &operator=(const SequenceConvParam &right) {
+        filter_tensor=right.filter_tensor;
+        padding_tensor=right.padding_tensor;
+        context_length=right.context_length;
+        context_start=right.context_start;
+        context_stride=right.context_stride;
+        padding_trainable=right.padding_trainable;
+        return *this;
+    }
+    bool operator==(const SequenceConvParam &right) {
+        bool comp_eq = true;
+        comp_eq = comp_eq && (filter_tensor=right.filter_tensor);
+        comp_eq = comp_eq && (padding_tensor=right.padding_tensor);
+        comp_eq = comp_eq && (context_length=right.context_length);
+        comp_eq = comp_eq && (context_start=right.context_start);
+        comp_eq = comp_eq && (context_stride=right.context_stride);
+        comp_eq = comp_eq && (padding_trainable=right.padding_trainable);
+        return comp_eq;
+    }
+
+    opTensor *filter_tensor;
+    opTensor *padding_tensor;
+    int context_length;
+    int context_start;
+    int context_stride;
+    bool padding_trainable;
+};
+
+template <typename opTensor>
 struct SequencePoolParam {
     SequencePoolParam()
             : sequence_pool_type(Sequence_pool_unknow)
@@ -950,14 +1081,21 @@ private:
 
 template <typename opTensor>
 struct EltwiseParam;
+template <typename opTensor>
+struct EltwiseActiveParam;
 // Fusion conv with batchnorm, scale, activation, eltwise(sigmoid, relu, tanh, clipped_relu, elu)
 template <typename opTensor>
 struct ConvActiveParam {
-    ConvActiveParam() : has_batchnorm(false), has_scale(false), has_active(false), has_eltwise(false){}
-
+    ConvActiveParam()
+            : has_batchnorm(false)
+            , has_scale(false)
+            , has_active(false)
+            , has_eltwise(false)
+            , has_eltwise_act(false)
+    {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in)
         : conv_param(conv_param_in), has_active(false)
-        , has_batchnorm(false), has_scale(false), has_eltwise(false)
+        , has_batchnorm(false), has_scale(false), has_eltwise(false), has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in,
                     ActivationParam<opTensor> &activation_param_in)
@@ -966,6 +1104,7 @@ struct ConvActiveParam {
         , has_scale(false)
         , has_active(true)
         , has_eltwise(false)
+        , has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
                     , ActivationParam<opTensor> &activation_param_in
@@ -977,6 +1116,7 @@ struct ConvActiveParam {
         , has_scale(false)
         , has_active(true)
         , has_eltwise(true)
+        , has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
             , ActivationParam<opTensor> &activation_param_in
@@ -988,6 +1128,7 @@ struct ConvActiveParam {
             , has_scale(false)
             , has_active(true)
             , has_eltwise(false)
+            , has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
             , ActivationParam<opTensor> &activation_param_in
@@ -1001,6 +1142,7 @@ struct ConvActiveParam {
             , has_scale(false)
             , has_active(true)
             , has_eltwise(true)
+            , has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
             , ActivationParam<opTensor> &activation_param_in
@@ -1012,6 +1154,7 @@ struct ConvActiveParam {
             , has_scale(true)
             , has_active(true)
             , has_eltwise(false)
+            , has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
             , ActivationParam<opTensor> &activation_param_in
@@ -1025,6 +1168,7 @@ struct ConvActiveParam {
             , has_scale(true)
             , has_active(true)
             , has_eltwise(true)
+            , has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
             , ActivationParam<opTensor> &activation_param_in
@@ -1038,6 +1182,7 @@ struct ConvActiveParam {
             , has_scale(true)
             , has_active(true)
             , has_eltwise(false)
+            , has_eltwise_act(false)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
             , BatchnormParam<opTensor> &batchnorm_param_in
@@ -1049,6 +1194,21 @@ struct ConvActiveParam {
             , has_scale(true)
             , has_active(false)
             , has_eltwise(false)
+            , has_eltwise_act(false)
+    {}
+    ConvActiveParam(ConvParam<opTensor> &conv_param_in
+            , BatchnormParam<opTensor> &batchnorm_param_in
+            , ScaleParam<opTensor> &scale_param_in
+            , EltwiseActiveParam<opTensor> &elt_act_param_in)
+            : conv_param(conv_param_in)
+            , batchnorm_param(batchnorm_param_in)
+            , scale_param(scale_param_in)
+            , eltwise_act_param(elt_act_param_in)
+            , has_batchnorm(true)
+            , has_scale(true)
+            , has_active(false)
+            , has_eltwise(false)
+            , has_eltwise_act(true)
     {}
     ConvActiveParam(ConvParam<opTensor> &conv_param_in
             , ActivationParam<opTensor> &activation_param_in
@@ -1064,6 +1224,7 @@ struct ConvActiveParam {
             , has_scale(true)
             , has_active(true)
             , has_eltwise(true)
+            , has_eltwise_act(false)
     {}
     ConvActiveParam(const ConvActiveParam &right)
             : conv_param(right.conv_param)
@@ -1073,6 +1234,7 @@ struct ConvActiveParam {
             , has_batchnorm(right.has_batchnorm)
             , has_scale(right.has_scale)
             , has_active(right.has_active)
+            , has_eltwise_act(right.has_active)
     {}
     ConvActiveParam &operator=(const ConvActiveParam &right) {
         conv_param = right.conv_param;
@@ -1082,6 +1244,8 @@ struct ConvActiveParam {
         has_batchnorm = right.has_batchnorm;
         has_scale = right.has_scale;
         has_active = right.has_active;
+        has_eltwise = right.has_eltwise;
+        has_eltwise_act = right.has_eltwise_act;
         return *this;
     }
     bool operator==(const ConvActiveParam &right) {
@@ -1092,6 +1256,9 @@ struct ConvActiveParam {
         comp_eq = comp_eq && (scale_param == right.scale_param);
         comp_eq = comp_eq && (has_batchnorm == right.has_batchnorm);
         comp_eq = comp_eq && (has_scale == right.has_scale);
+        comp_eq = comp_eq && (has_active == right.has_active);
+        comp_eq = comp_eq && (has_eltwise == right.has_eltwise);
+        comp_eq = comp_eq && (has_eltwise_act == right.has_eltwise_act);
         return comp_eq;
     }
     ConvParam<opTensor> conv_param;
@@ -1099,10 +1266,13 @@ struct ConvActiveParam {
     BatchnormParam<opTensor> batchnorm_param;
     ScaleParam<opTensor> scale_param;
     EltwiseParam<opTensor> eltwise_param;
+    EltwiseActiveParam<opTensor> eltwise_act_param;
+
     bool has_batchnorm;
     bool has_scale;
     bool has_active;
     bool has_eltwise;
+    bool has_eltwise_act;
 };
 // Fusion conv with batchnorm, scale, activation(sigmoid, relu, tanh, clipped_relu, elu)
 template <typename opTensor>
@@ -1222,29 +1392,6 @@ struct ResizeParam {
     }
     float width_scale{0.f};
     float height_scale{0.f};
-};
-template <typename opTensor>
-struct PreluParam {
-    PreluParam() = default;
-    PreluParam(bool is_channel_shared, opTensor* input_slope) {
-        channel_shared = is_channel_shared;
-        slope = input_slope;
-    }
-    PreluParam(const PreluParam<opTensor>& right) {
-        channel_shared = right.channel_shared;
-        slope = right.slope;
-    }
-    PreluParam<opTensor>& operator=(const PreluParam<opTensor>& right) {
-        this->channel_shared = right.channel_shared;
-        this->slope = right.slope;
-        return *this;
-    }
-    bool operator==(const PreluParam<opTensor>& right) {
-        bool flag = this->channel_shared == right.channel_shared;
-        return flag && (this->slope == right.slope);
-    }
-    bool channel_shared{false};
-    opTensor* slope{nullptr};
 };
 
 template <typename opTensor>
@@ -1493,6 +1640,7 @@ struct EltwiseParam {
         for (int i = 0; i < coeff.size(); ++i) {
             comp_eq = comp_eq && (coeff[i] == right.coeff[i]);
         }
+        return comp_eq;
     }
     EltwiseType operation;
     std::vector<DataDtype> coeff;
@@ -1542,7 +1690,7 @@ struct PriorBoxParam {
     PriorBoxParam(std::vector<float> min_in, std::vector<float> max_in, \
         std::vector<float> aspect_in, std::vector<float> variance_in,
         bool flip, bool clip, int image_width, int image_height, \
-        float step_width, float step_height, float offset_in) {
+        float step_width, float step_height, float offset_in, std::vector<PriorType> order_in) {
         is_flip = flip;
         is_clip = clip;
         min_size = min_in;
@@ -1551,6 +1699,7 @@ struct PriorBoxParam {
         step_w = step_width;
         step_h = step_height;
         offset = offset_in;
+        order = order_in;
         aspect_ratio.clear();
         aspect_ratio.push_back(1.f);
 
@@ -1607,6 +1756,7 @@ struct PriorBoxParam {
         step_w = right.step_w;
         step_h = right.step_h;
         offset = right.offset;
+        order = right.order;
         prior_num = right.prior_num;
     }
     PriorBoxParam<opTensor>& operator=(const PriorBoxParam<opTensor>& right) {
@@ -1621,6 +1771,7 @@ struct PriorBoxParam {
         this->step_w = right.step_w;
         this->step_h = right.step_h;
         this->offset = right.offset;
+        this->order = right.order;
         this->prior_num = right.prior_num;
         return *this;
     }
@@ -1664,6 +1815,7 @@ struct PriorBoxParam {
         flag = flag && (step_w == right.step_w);
         flag = flag && (step_h == right.step_h);
         flag = flag && (offset == right.offset);
+        flag = flag && (order == right.order);
         flag = flag && (prior_num == right.prior_num);
         return flag;
     }
@@ -1680,8 +1832,8 @@ struct PriorBoxParam {
     float step_h{0};
     float offset{0.5};
     int prior_num{0};
+    std::vector<PriorType> order;
 };
-
 template <typename opTensor>
 struct DeformableConvParam {
 
@@ -2232,7 +2384,7 @@ template <class opTensor>
 struct FlattenParam {
     FlattenParam() = default;
     FlattenParam(const FlattenParam& right) {}
-    FlattenParam& operator=(const FlattenParam& right){}
+    FlattenParam& operator=(const FlattenParam& right){ return *this;}
     bool operator==(const FlattenParam& right){
         return true;
     }
@@ -2240,8 +2392,8 @@ struct FlattenParam {
 template <class opTensor>
 struct AxpyParam {
     AxpyParam() = default;
-    AxpyParam(const AxpyParam& right) {}
-    AxpyParam& operator=(const AxpyParam& right){}
+    AxpyParam(const AxpyParam& right) { }
+    AxpyParam& operator=(const AxpyParam& right){ return *this;}
     bool operator==(const AxpyParam& right){
         return true;
     }
@@ -2319,6 +2471,7 @@ struct Im2SequenceParam {
         stride_w = right.stride_w;
         dilation_h = right.dilation_h;
         dilation_w = right.dilation_w;
+        return *this;
     }
     bool operator==(const Im2SequenceParam &right) {
         bool comp_eq = true;
@@ -2468,6 +2621,72 @@ struct LayerNormParam {
 private:
     opTensor* scale;
     opTensor* bias;
+};
+
+template <typename opTensor>
+struct AttensionParam {
+   AttensionParam() {};
+   AttensionParam(std::vector<FcParam<opTensor>>& fc_vec_in) : fc_vec(fc_vec_in) {}
+   AttensionParam(const AttensionParam &right):
+         fc_vec(right.fc_vec) {}
+   AttensionParam&operator=(const AttensionParam &right){
+       fc_vec = right.fc_vec;
+   }
+   bool operator == (const AttensionParam &right) {
+       bool cmp_eq = true;
+       cmp_eq = cmp_eq && fc_vec.size() == right.fc_vec.size();
+       if (cmp_eq == false) {
+           return cmp_eq;
+       }
+       for (int i = 0; i < fc_vec.size(); i++) {
+           cmp_eq = cmp_eq && fc_vec[i] == right.fc_vec[i];
+       }
+       return cmp_eq;
+   }
+   
+public:
+    std::vector<FcParam<opTensor>> fc_vec;
+    //std::vector<int> fc_vec;
+};
+
+template<typename opTensor>
+struct AttensionLstmParam {
+    AttensionLstmParam() {}
+    AttensionLstmParam(AttensionParam<opTensor>& attn_param_in, LstmParam<opTensor>& lstm_param_in):
+        attension_param(attn_param_in), lstm_param(lstm_param_in) {}
+    AttensionLstmParam(const AttensionLstmParam &right):
+        attension_param(right.attension_param),
+        lstm_param(right.lstm_param) {}
+    AttensionLstmParam &operator=(const AttensionLstmParam &right) {
+        attension_param = right.attension_param;
+        lstm_param = right.lstm_param;
+    }
+    bool operator==(const AttensionLstmParam &right) {
+        bool cmp_eq = true;
+        cmp_eq = cmp_eq && attension_param == right.attension_param;
+        cmp_eq = cmp_eq && lstm_param == right.lstm_param;
+        return cmp_eq;
+    }
+public:
+    AttensionParam<opTensor> attension_param;
+    LstmParam<opTensor> lstm_param;
+};
+
+template <typename opTensor>
+struct SequenceExpandParam {
+    SequenceExpandParam():ref_level(0) {}
+    SequenceExpandParam(int ref_level_in):ref_level(ref_level_in) {}
+    SequenceExpandParam(const  SequenceExpandParam &right):
+            ref_level(right.ref_level_in) {}
+    SequenceExpandParam &operator=(const  SequenceExpandParam &right) {
+        ref_level = right.ref_level;
+    }
+    bool operator==(const SequenceExpandParam &right) {
+        return ref_level == right.ref_level;
+    }
+
+public:
+    int ref_level;
 };
 
 }

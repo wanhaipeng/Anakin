@@ -13,7 +13,7 @@ NodeIO<Ttype, Dtype, Ptype>& NodeIO<Ttype, Dtype, Ptype>::operator>>(const NodeP
     node_p->need_wait() = node_proto.need_wait();
     node_p->lane() = node_proto.lane();
     auto it = node_proto.attr().begin();
-
+    DLOG(INFO)<<"read :"<<node_p->name();
     for (; it != node_proto.attr().end(); ++it) {
         auto& key = it->first;
         auto& value = it->second;
@@ -337,17 +337,26 @@ template class NodeIO<NV, AK_FLOAT, Precision::FP16>;
 template class NodeIO<NV, AK_FLOAT, Precision::INT8>;
 #endif
 
-#ifdef USE_X86_PLACE
+#if defined(USE_X86_PLACE) || defined(BUILD_LITE)
 template class NodeIO<X86, AK_FLOAT, Precision::FP32>;
 template class NodeIO<X86, AK_FLOAT, Precision::FP16>;
 template class NodeIO<X86, AK_FLOAT, Precision::INT8>;
 #endif
 
 #ifdef USE_ARM_PLACE
+#ifdef ANAKIN_TYPE_FP32
 template class NodeIO<ARM, AK_FLOAT, Precision::FP32>;
+#endif
+
+#ifdef ANAKIN_TYPE_FP16
 template class NodeIO<ARM, AK_FLOAT, Precision::FP16>;
+#endif
+
+#ifdef ANAKIN_TYPE_INT8
 template class NodeIO<ARM, AK_FLOAT, Precision::INT8>;
 #endif
+
+#endif //USE_ARM_PLACE
 
 } /* parser */
 

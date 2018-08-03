@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Baidu, Inc. All Rights Reserved.
+/* Copyright (c) 2018 Anakin Authors, Inc. All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -64,9 +64,11 @@ public:
             output[i]->reshape(output[i]->valid_shape());
         }
         for (auto imp : this->_impl) {
-            SaberStatus status = imp->create(input, output, param, ctx);
-            if (status != SaberSuccess) {
-                return status;
+            if (imp) {
+                SaberStatus status = imp->create(input, output, param, ctx);
+                if (status != SaberSuccess) {
+                    return status;
+                }
             }
         }
         return SaberSuccess;

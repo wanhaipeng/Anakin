@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Baidu, Inc. All Rights Reserved.
+/* Copyright (c) 2018 Anakin Authors, Inc. All Rights Reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "saber/funcs/base.h"
 #include "saber/funcs/impl/impl_base.h"
+#include "saber/funcs/impl/impl_concat.h"
 
 #ifdef NVIDIA_GPU
 #include "saber/funcs/impl/cuda/saber_concat.h"
@@ -24,6 +25,10 @@
 
 #ifdef USE_X86_PLACE
 #include "saber/funcs/impl/x86/saber_concat.h"
+#endif
+
+#ifdef USE_ARM_PLACE
+#include "saber/funcs/impl/arm/saber_concat.h"
 #endif
 
 namespace anakin {
@@ -90,6 +95,7 @@ public:
             }
             shape_out[param.axis] += sh[param.axis];
         }
+        output[0]->set_seq_offset(input[0]->get_seq_offset());
         return output[0]->set_shape(shape_out);
     }
 

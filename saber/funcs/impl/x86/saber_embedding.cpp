@@ -22,7 +22,7 @@ SaberStatus SaberEmbedding<X86, OpDtype, inDtype, outDtype,
         Context<X86> &ctx)
 {
     // get context
-    this->_ctx = ctx;
+    this->_ctx = &ctx;
     return create(inputs, outputs, param, ctx);
 }
 
@@ -75,6 +75,7 @@ SaberStatus SaberEmbedding<X86, OpDtype, inDtype, outDtype,
             memcpy(out_data + i * emb_dim, param.weight()->data(int(in_data[i]) * emb_dim), sizeof(DataType_out) * emb_dim);
         }
     }
+    return SaberSuccess;
       
 }
 
