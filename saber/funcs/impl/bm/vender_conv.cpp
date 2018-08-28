@@ -58,7 +58,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
     int dilation_w = param.dilation_w;
 
     bool with_bias = param.bias()->size() > 0;
-    const BM_mem_addr bias = with_bias ? (const BM_mem_addr)param.bias()->data() : bm_mem_null();
+    const bm_mem_desc bias = with_bias ? (const BM_mem_addr)param.bias()->data() : BM_MEM_NULL;
 
     bm_tensor_4d_t input_shape = {
         input_n,
