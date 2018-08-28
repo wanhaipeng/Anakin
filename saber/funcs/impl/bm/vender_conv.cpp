@@ -33,9 +33,9 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
                 ConvParam<BM>& param)
 {
 
-    const BM_mem_addr *in_data = (const BM_mem_addr *)inputs[0]->data();
-    BM_mem_addr *out_data = (BM_mem_addr *)outputs[0]->mutable_data();
-    const BM_mem_addr *weight = (const BM_mem_addr *)param.weight()->data();
+    const BM_mem_addr in_data = (const BM_mem_addr) inputs[0]->data();
+    BM_mem_addr out_data = (BM_mem_addr) outputs[0]->mutable_data();
+    const BM_mem_addr weight = (const BM_mem_addr) param.weight()->data();
 
     int input_n = inputs[0]->num();
     int input_c = inputs[0]->channel();
@@ -58,7 +58,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
     int dilation_w = param.dilation_w;
 
     bool with_bias = param.bias()->size() > 0;
-    const BM_mem_addr *bias = with_bias ? (const BM_mem_addr *)param.bias()->data() : &bm_mem_null();
+    const BM_mem_addr bias = with_bias ? (const BM_mem_addr)param.bias()->data() : bm_mem_null();
 
     bm_tensor_4d_t input_shape = {
         input_n,
@@ -92,8 +92,8 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
         // TODO: bmdnn_conv_relu_forward
     }
     else{
-        BMDNN_CHECK(bmdnn_conv_forward(_handle, *in_data, *weight, *bias, input_shape,
-                                   kernel_param, output_shape, conv_param, with_bias, *out_data));
+        BMDNN_CHECK(bmdnn_conv_forward(_handle, in_data, weight, bias, input_shape,
+                                   kernel_param, output_shape, conv_param, with_bias, out_data));
     }
 
     return SaberSuccess;
