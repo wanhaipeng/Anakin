@@ -202,7 +202,7 @@ TEST(TestSaberFunc, test_saber_conv_results) {
     #endif
 
     #ifdef USE_X86_PLACE
-    test_conv_eltwise<X86, X86>();
+    test_conv_eltwise<NV, NVHX86>();
     #endif
 
 }
