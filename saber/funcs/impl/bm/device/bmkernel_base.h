@@ -4,8 +4,13 @@
 extern "C" {
 #endif
 
+enum bm_op{
+    ACTIVATION, 
+    CONV, 
+}; 
+
 typedef struct {
-    int op; //TODO: use ENUM
+    bm_op op; // Flag to determine the operation type.
 } __attribute__((packed)) bmkernel_api_base;
 
 #ifdef __cplusplus
