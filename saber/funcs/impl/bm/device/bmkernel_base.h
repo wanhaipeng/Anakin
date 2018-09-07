@@ -10,7 +10,7 @@ enum BmOpType {
 };
 
 typedef struct {
-    BmOpType op; // Flag to determine the operation type.
+    enum BmOpType op; // Flag to determine the operation type.
 } __attribute__((packed)) bmkernel_api_base;
 
 #ifdef __cplusplus
