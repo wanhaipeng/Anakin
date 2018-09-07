@@ -36,10 +36,8 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
                 std::vector<Tensor<BM>*>& outputs,
                 ConvParam<BM>& param)
 {
-
-    bmkernel_api_base api;
     enum BmOpType op = CONV;
-    strcpy(api.op, op);
+    bmkernel_api_base api = { op };
 
     //TODO: pass conv args into BM Kernel
 
