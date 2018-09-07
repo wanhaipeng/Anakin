@@ -38,7 +38,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
 {
 
     bmkernel_api_base api;
-    const BmOpType *op = CONV;
+    enum BmOpType op = CONV;
     strcpy(api.op, op);
 
     //TODO: pass conv args into BM Kernel
