@@ -29,7 +29,7 @@ if(USE_ARM_PLACE)
     anakin_fetch_files_with_suffix(${ANAKIN_SABER}/funcs/impl/arm/impl "cpp" ANAKIN_SABER_BASE_SRC)
 endif()
 
-if(USE_BM)
+if(USE_BM_PLACE)
     anakin_fetch_files_with_suffix(${ANAKIN_SABER}/core/impl/bm "cpp" ANAKIN_SABER_BASE_SRC)
     anakin_fetch_files_with_suffix(${ANAKIN_SABER}/funcs/impl/bm "cpp" ANAKIN_SABER_BASE_SRC)
     anakin_fetch_files_with_suffix(${ANAKIN_SABER}/funcs/impl/bm/impl "cpp" ANAKIN_SABER_BASE_SRC)
@@ -46,7 +46,7 @@ if(USE_GPU_PLACE)
 endif()
 
 
-if(USE_X86_PLACE OR USE_BM)
+if(USE_X86_PLACE OR USE_BM_PLACE)
     anakin_fetch_files_with_suffix(${ANAKIN_SABER}/core/impl/x86 "cpp" ANAKIN_SABER_BASE_SRC)
 endif()
 
@@ -112,6 +112,7 @@ if(USE_BM)
         COMMENT "custom compilation..."
     )
     add_custom_target(ANAKIN ALL DEPENDS bm_kernel_tmp)
+    configure_file(${ANAKIN_ROOT}/build/saber/bmkernel_bin.bin ${BM_ROOT}/bmkernel_bin.bin COPYONLY)
 endif()
 
 # add saber library to static
