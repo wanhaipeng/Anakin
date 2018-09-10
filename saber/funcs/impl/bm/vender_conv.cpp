@@ -41,7 +41,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
 
     //TODO: pass conv args into BM Kernel
 
-    bm_status_t bm_stat = bmkernel_launch(_handle, "/usr/local/include/bm/bmkernel_bin.bin");
+    bm_status_t bm_stat = bmkernel_launch(_handle, BM_ROOT+"/bmkernel_bin.bin");
     CHECK_EQ(BM_SUCCESS, bm_stat) << "bmkernel_launch failed.";
     
     /* Send arguments. */
