@@ -40,8 +40,10 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
     bmkernel_api_base api = { op };
 
     //TODO: pass conv args into BM Kernel
-
-    bm_status_t bm_stat = bmkernel_launch(_handle, BM_ROOT+"/bmkernel_bin.bin");
+    #ifdef BM_ROOT
+    printf("test");
+    #endif
+    bm_status_t bm_stat = bmkernel_launch(_handle, "bmkernel_bin.bin");
     CHECK_EQ(BM_SUCCESS, bm_stat) << "bmkernel_launch failed.";
     
     /* Send arguments. */
