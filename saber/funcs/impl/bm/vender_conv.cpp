@@ -43,7 +43,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
 
     bm_handle_t handle;
     /* Initialize BMKERNEL. */
-    BM_CHECK(bmkernel_init(&handle)) << "bmkernel_init failed.";
+    BM_CHECK(bmkernel_init(&handle));
     bm_status_t bm_stat = bmkernel_launch(handle, "/usr/local/include/bm/bmkernel_bin.bin");
     CHECK_EQ(BM_SUCCESS, bm_stat) << "bmkernel_launch failed.";
     
