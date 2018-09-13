@@ -107,9 +107,8 @@ if(USE_BM_PLACE)
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
 
-        COMMAND #ITCM_SZ := $(shell wc -c < ${BIN_NAME}_itcm.hex.sim)
-        COMMAND ITCM_SZ_OCT = $(shell wc -c < ${BIN_NAME}_itcm.hex.sim)
-        COMMAND ITCM_SZ = $(shell echo "obase=16;$(ITCM_SZ_OCT)" | bc)
+        COMMAND ITCM_SZ_OCT = ${wc -c < ${BIN_NAME}_itcm.hex.sim}
+        COMMAND ITCM_SZ = ${echo "obase=16;${ITCM_SZ_OCT}" | bc}
 
         COMMAND printf "%x" $(HEX_SIM_ITCM) >> ${BIN_NAME}.bin
         COMMAND cat ${BIN_NAME}_itcm.hex.sim >> ${BIN_NAME}.bin
