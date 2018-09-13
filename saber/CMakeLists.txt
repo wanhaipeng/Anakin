@@ -109,8 +109,9 @@ if(USE_BM_PLACE)
 
         COMMAND bash "-c" "ITCM_SZ_OCT=$(wc -c < bmkernel_bin_itcm.hex.sim)"
         COMMAND bash "-c" "ITCM_SZ=$(echo "obase=16;$ITCM_SZ_OCT" | bc)"
+        COMMAND bash "-c" "printf "%x" 0x$ITCM_SZ >> bmkernel_bin.bin"
 
-        COMMAND printf "%x" 0x$ITCM_SZ >> ${BIN_NAME}.bin
+        #COMMAND printf "%x" 0x$ITCM_SZ >> ${BIN_NAME}.bin
         COMMAND cat ${BIN_NAME}_itcm.hex.sim >> ${BIN_NAME}.bin
         COMMAND cat ${BIN_NAME}_ddr.hex.sim >> ${BIN_NAME}.bin
         COMMAND cp ${ANAKIN_ROOT}/build/saber/bmkernel_bin.bin ${BM_ROOT}/bmkernel_bin.bin
