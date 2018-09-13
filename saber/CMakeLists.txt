@@ -107,8 +107,8 @@ if(USE_BM_PLACE)
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
 
-        COMMAND bash "ITCM_SZ_OCT:=$(wc -c < ${BIN_NAME}_itcm.hex.sim)"
-        COMMAND bash "ITCM_SZ:=$(echo "obase=16;$ITCM_SZ_OCT" | bc)"
+        COMMAND bash "-c" "ITCM_SZ_OCT=$(wc -c < bmkernel_bin_itcm.hex.sim)"
+        COMMAND bash "-c" "ITCM_SZ=$(echo "obase=16;$ITCM_SZ_OCT" | bc)"
 
         COMMAND printf "%x" 0x$ITCM_SZ >> ${BIN_NAME}.bin
         COMMAND cat ${BIN_NAME}_itcm.hex.sim >> ${BIN_NAME}.bin
