@@ -1,5 +1,6 @@
 #include "bmkernel_base.h"
 #include "bm_config.h"
+#include "bmk_conv.c"
 #include <stdio.h>
 /**
  * bmkernel_func is the user entry to BMKERNEL just like "main" to some applications.
@@ -16,7 +17,7 @@ int bmkernel_func(void *args)
             // bm_activation_fwd(param)
             break;
         case CONV:
-            // bm_conv_fwd(param)
+            conv();
             break;
         default:
             printf("op %d is not supported by BM yet.\n", param->op);
