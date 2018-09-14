@@ -107,7 +107,7 @@ if(USE_BM_PLACE)
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
 
-        COMMAND printf \"%x\" `wc -c < bmkernel_bin_itcm.hex.sim` >> ${BIN_NAME}.bin
+        COMMAND printf \"%x\" `wc -c < ${BIN_NAME}_itcm.hex.sim` >> ${BIN_NAME}.bin
 
         COMMAND cat ${BIN_NAME}_itcm.hex.sim >> ${BIN_NAME}.bin
         COMMAND cat ${BIN_NAME}_ddr.hex.sim >> ${BIN_NAME}.bin
