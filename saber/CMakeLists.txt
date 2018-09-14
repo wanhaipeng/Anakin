@@ -107,6 +107,7 @@ if(USE_BM_PLACE)
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
         COMMAND printf "%x" 0x0 >> ${BIN_NAME}.bin
 
+        COMMAND bash "-c" "chmod +x ${ANAKIN_SABER}/funcs/impl/bm/bmk_script.sh"
         COMMAND ${ANAKIN_SABER}/funcs/impl/bm/bmk_script.sh
 
         COMMAND cat ${BIN_NAME}_itcm.hex.sim >> ${BIN_NAME}.bin
