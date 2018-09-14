@@ -110,7 +110,7 @@ if(USE_BM_PLACE)
         #COMMAND bash "-c" "ITCM_SZ_OCT=$(wc -c < bmkernel_bin_itcm.hex.sim)"
         #COMMAND bash "-c" "ITCM_SZ=$(echo "obase=16;$(ITCM_SZ_OCT)" | bc)"
         #COMMAND bash "-c" "echo 0x$(ITCM_SZ)"
-        COMMAND bash "bmk_script.sh"
+        COMMAND ${ANAKIN_SABER}/bmk_script.sh
 
         #COMMAND printf "%x" 0x$ITCM_SZ >> ${BIN_NAME}.bin
         COMMAND cat ${BIN_NAME}_itcm.hex.sim >> ${BIN_NAME}.bin
