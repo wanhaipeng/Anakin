@@ -235,7 +235,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
           output_shape, with_bias, conv_param, &secs_info);
     CHECK_EQ(BM_SUCCESS, result) << "local memory is not enough in conv.";
 
-    bm_api_conv_forward_t bm_conv_param = {
+    bm_api_conv_forward bm_conv_param = {
       bm_mem_get_device_addr(input_buf_mem),
       bm_mem_get_device_addr(out_data),
       bm_mem_get_device_addr(weight),

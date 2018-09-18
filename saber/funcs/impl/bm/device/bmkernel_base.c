@@ -17,7 +17,7 @@ int bmkernel_func(void *args)
             // bm_activation_fwd(param)
             break;
         case CONV:
-            bm_api_conv_forward_t* api = (bm_api_conv_forward_t*)param->opParam;
+            bm_api_conv_forward* api = (bm_api_conv_forward *)param->opParam;
             bm_conv_fwd(*api);
             break;
         default:

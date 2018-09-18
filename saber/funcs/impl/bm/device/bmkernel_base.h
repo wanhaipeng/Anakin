@@ -9,7 +9,7 @@ enum BmOpType {
     CONV
 };
 
-typedef struct bm_api_conv_forward {
+typedef struct {
     unsigned long long             ifmap_offset_global;
     unsigned long long             ofmap_offset_global;
     unsigned long long             weight_offset_global;
@@ -34,7 +34,7 @@ typedef struct bm_api_conv_forward {
     int                            ocsecs;
     int                            nsecs;
     int                            hsecs;
-} __attribute__((packed)) bm_api_conv_forward_t;
+} __attribute__((packed)) bm_api_conv_forward;
 
 typedef struct {
     enum BmOpType op; // Flag to determine the operation type.
