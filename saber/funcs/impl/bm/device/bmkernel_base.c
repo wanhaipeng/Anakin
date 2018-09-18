@@ -17,7 +17,8 @@ int bmkernel_func(void *args)
             // bm_activation_fwd(param)
             break;
         case CONV:
-            conv();
+            bm_api_conv_forward_t* api = (bm_api_conv_forward_t*)param->opParam;
+            bm_conv_fwd(*api);
             break;
         default:
             printf("op %d is not supported by BM yet.\n", param->op);
