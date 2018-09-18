@@ -120,6 +120,12 @@ typedef struct bm_conv_param{
     bool result_add;
 } bm_conv_param_t;
 
+typedef struct conv_secs_info{
+    int ocsecs;
+    int icsecs;
+    int nsecs;
+    int hsecs;
+} conv_secs_info_t;
 
 static INLINE int ceiling_func(int numerator, int denominator)
 {
