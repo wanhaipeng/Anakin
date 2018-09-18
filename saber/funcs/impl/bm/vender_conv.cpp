@@ -99,7 +99,7 @@ static bm_status_t get_conv_secs_info(
     weight_capacity = icslice * oc_per_NPU * kernel_size * FLOAT_SIZE;
     weight_capacity = addr_EU_align( weight_capacity + bias_tensor_size );
     int local_mem_capacity = LOCAL_MEM_SIZE - weight_capacity;
-    ASSERT(local_mem_capacity > 0);
+    CHECK_GT(local_mem_capacity, 0) << "local memory capacity not enough";
     input_shape.c = icslice;
     output_shape.c = ocslice;
     ifmap_total_tensor_size = get_align_tensor_size(input_shape);

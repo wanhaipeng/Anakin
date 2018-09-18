@@ -14,17 +14,6 @@
 extern "C" {
 #endif
 
-#define ASSERT(_cond)                           \
-  do {                                            \
-    if (!(_cond)) {                              \
-      printf("ASSERT %s: %s: %d: %s\n",          \
-          __FILE__, __func__, __LINE__, #_cond); \
-      print_trace();                             \
-      hang(-1);                                  \
-    }                                            \
-  } while(0)
-
-
 //#define DEBUG_MESSAGE
 #ifdef DEBUG_MESSAGE
 #define MSG_DBG(fmt, ...)       printf("MSG: "fmt, ##__VA_ARGS__)
