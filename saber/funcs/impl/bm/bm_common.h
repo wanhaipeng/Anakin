@@ -165,6 +165,13 @@ static INLINE int get_align_tensor_size(bm_tensor_4d_t shape){
   return shape.n * c_per_npu * get_neuron_csize_local(shape.h, shape.w);
 }
 
+static int INLINE get_cstride_local(int h, int w)
+{
+  int size = h * w;
+  //EU_NUM neurons align
+  return ALIGN(size,EU_NUM);
+}
+
 #ifdef __cplusplus
 }
 #endif
