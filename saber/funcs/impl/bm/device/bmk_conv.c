@@ -208,14 +208,14 @@ int bm_conv_fwd(bm_api_conv_forward conv_param)
                             return -1;
                         }
 
-                        local_shape_t ifshape, ofshape;
+                        /*local_shape_t ifshape, ofshape;
                         ifshape.n = sec_len_n;
                         ifshape.c = cur_icslice;
                         ifshape.h = i_h;
                         ifshape.w = input_w;
                         ofshape.c = cur_ocslice;
                         ofshape.h = o_h;
-                        ofshape.w = output_w;
+                        ofshape.w = output_w;*/
                         
                         bm_res = bm_atomic_conv_kernel_stride(
                             start_npu_idx,
