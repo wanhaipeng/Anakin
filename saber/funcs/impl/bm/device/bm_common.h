@@ -1,5 +1,5 @@
-#ifndef ANAKIN_SABER_FUNCS_IMPL_BM_BM_COMMON_H
-#define ANAKIN_SABER_FUNCS_IMPL_BM_BM_COMMON_H
+#ifndef ANAKIN_SABER_FUNCS_IMPL_BM_DEVICE_BM_COMMON_H
+#define ANAKIN_SABER_FUNCS_IMPL_BM_DEVICE_BM_COMMON_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +11,7 @@
 #include <time.h>
 #include "bm_config.h"
 #include "bm_atomic.h"
+#include "bm_memmap.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -176,4 +177,4 @@ static int INLINE get_cstride_local(int h, int w)
 #ifdef __cplusplus
 }
 #endif
-#endif /* ANAKIN_SABER_FUNCS_IMPL_BM_BM_COMMON_H */
+#endif /* ANAKIN_SABER_FUNCS_IMPL_BM_DEVICE_BM_COMMON_H */
