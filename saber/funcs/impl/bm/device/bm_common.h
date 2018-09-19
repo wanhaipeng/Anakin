@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <time.h>
 #include "bm_config.h"
+#include "bm_atomic.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
