@@ -399,6 +399,10 @@ struct TargetWrapper<BM, __device_target> {
     typedef void* event_t;
     typedef void* stream_t;
 
+    // Init handle only once in the lifetime
+    static bm_handle_t handle;
+    static bm_status_t init_handle{bmkernel_init(&handle)};
+
     static void get_device_count(int& count);
 
     static void set_device(int id);
@@ -449,7 +453,9 @@ struct TargetWrapper<BM, __device_target> {
     static void device_sync(){};
     static bm_handle_t get_handle();
 
-    ~TargetWrapper();
+    ~TargetWrapper() {
+        bmkernel_deinit(handle);
+    }
 
 };
 #endif //USE_BM_PLACE

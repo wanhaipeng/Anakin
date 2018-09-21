@@ -43,12 +43,9 @@ namespace saber {
 typedef TargetWrapper<BM, __device_target> BM_API;
 
 
-// Init handle only once in the lifetime
-static bm_handle_t handle;
-static bm_status_t init_handle{bmkernel_init(&handle)};
 
 bm_handle_t BM_API::get_handle() {
-    return handle;
+    return BM_API::handle;
 };
 
 void BM_API::get_device_count(int& count) {
@@ -69,20 +66,20 @@ void BM_API::mem_alloc(TPtr* ptr, size_t n) {
     /* bm_device_mem_t *mem = reinterpret_cast<struct bm_mem_desc *>(*ptr); */
     //    bm_device_mem_t *mem = new bm_device_mem_t();
     bm_device_mem_t mem;
-    BM_CHECK(bm_malloc_device_byte(handle, &mem, n));
+    BM_CHECK(bm_malloc_device_byte(BM_API::handle, &mem, n));
     *ptr = TPtr(mem);
 }
 
 void BM_API::mem_free(TPtr ptr) {
     if ((ptr != BM_MEM_NULL)) {
-        bm_free_device(handle, ptr);
+        bm_free_device(BM_API::handle, ptr);
         //        delete ptr;
     }
 }
 
 void BM_API::mem_set(TPtr ptr, int value, size_t n) {
     //(bm_handle_t handle, const int value, bm_device_mem_t mem){
-    BM_CHECK(bm_memset_device(handle, value, ptr));
+    BM_CHECK(bm_memset_device(BM_API::handle, value, ptr));
     //bm_device_mem_t* pmem = (struct bm_mem_desc *)(ptr);
     //BM_CHECK(bm_memset_device(handle, value, *pmem));
 }
@@ -93,7 +90,7 @@ void BM_API::sync_memcpy(TPtr dst, size_t dst_offset, int dst_id, \
     if(count==0)
         return;
     //BM_CHECK(bm_memcpy_d2d(handle, bm_mem_from_device(dst), dst_id, bm_mem_from_device(src), src_id, count));
-    BM_CHECK(bm_memcpy_d2d(handle, dst, dst_offset, src, src_offset, count));
+    BM_CHECK(bm_memcpy_d2d(BM_API::handle, dst, dst_offset, src, src_offset, count));
 };
 
 void BM_API::sync_memcpy(TPtr dst, size_t dst_offset, int dst_id, \
@@ -101,7 +98,7 @@ void BM_API::sync_memcpy(TPtr dst, size_t dst_offset, int dst_id, \
         size_t count, __HtoD) {
     if(count==0)
         return;
-    BM_CHECK(bm_memcpy_s2d(handle, dst+dst_offset, bm_mem_from_system(const_cast<void*>(src)+src_offset)));
+    BM_CHECK(bm_memcpy_s2d(BM_API::handle, dst+dst_offset, bm_mem_from_system(const_cast<void*>(src)+src_offset)));
 
 #ifdef DEBUG
 
@@ -118,7 +115,7 @@ void BM_API::sync_memcpy(void* dst, size_t dst_offset, int dst_id, \
     if(count==0)
         return;
 //    LOG(INFO)<<"host ptr = "<<(dst)<<",dst_offset = "<<dst_offset<<", dev ptr = "<<(src)<<",dev offset = "<<src_offset;
-    BM_CHECK(bm_memcpy_d2s(handle, bm_mem_from_system(dst+dst_offset), src+src_offset));
+    BM_CHECK(bm_memcpy_d2s(BM_API::handle, bm_mem_from_system(dst+dst_offset), src+src_offset));
 
 #ifdef DEBUG
 
@@ -137,10 +134,6 @@ void BM_API::sync_memcpy_p2p(TPtr dst, size_t dst_offset, int dst_id, \
         return;
     LOG(FATAL) << "BM sync_memcpy_p2p: temporarily no used";
 };
-
-~TargetWrapper() { 
-    bmkernel_deinit(handle);
-}
 
 //! BM TargetWrapper
 template struct TargetWrapper<BM, __device_target>;
