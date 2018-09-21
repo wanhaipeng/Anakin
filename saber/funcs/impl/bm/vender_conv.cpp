@@ -268,8 +268,6 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
     CHECK_EQ(BM_SUCCESS, bm_stat) << "bmkernel_launch failed.";
 
     LOG(INFO)<<"BM Conv starts...";
-    print_tensor(inputs[0]);
-    print_tensor(outputs[0]);
     
     /* Send arguments. */
     enum BmOpType op = CONV;
@@ -277,7 +275,6 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
     BM_CHECK(bmkernel_send_args(handle, reinterpret_cast<void *>(&api), sizeof(api)));
 
     LOG(INFO)<<"BM Conv ends...";
-    print_tensor(outputs[0]);
 
     bmkernel_deinit(handle);
 
