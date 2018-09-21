@@ -138,7 +138,7 @@ void BM_API::sync_memcpy_p2p(TPtr dst, size_t dst_offset, int dst_id, \
     LOG(FATAL) << "BM sync_memcpy_p2p: temporarily no used";
 };
 
-~TargetWrapper() { 
+TargetWrapper::~TargetWrapper() { 
     bmkernel_deinit(handle);
 }
 
