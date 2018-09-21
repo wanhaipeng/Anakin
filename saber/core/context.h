@@ -175,7 +175,9 @@ private:
 
     ~Context() 
     { 
-        bmkernel_deinit(_bm_handle);
+        if(std::is_same<TargetType, BM>::value){
+            bmkernel_deinit(_bm_handle);
+        }
     } 
 #endif
 
