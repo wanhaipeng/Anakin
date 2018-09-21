@@ -256,7 +256,7 @@ public:
         for(int input_index = 0; input_index < _inputs_dev.size(); ++input_index){
             _base_op.init(_inputs_dev[input_index], _outputs_dev[input_index],
                           _params[param_index], strategy, implenum, ctx);
-            for(int iter=0; iter<iter_num; ++iter){
+            for(int iter=0; iter<1; ++iter){
                 _outputs_dev[input_index][0]->copy_from(*_outputs_host[input_index][0]);
                 status= _base_op(_inputs_dev[input_index], _outputs_dev[input_index],
                                  _params[param_index], ctx);
