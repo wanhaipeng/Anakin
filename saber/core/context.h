@@ -172,15 +172,7 @@ private:
 #endif
 #ifdef USE_BM_PLACE
     bm_handle_t _bm_handle;
-
-    ~Context() 
-    { 
-        if(std::is_same<TargetType, BM>::value){
-            bmkernel_deinit(_bm_handle);
-        }
-    } 
 #endif
-
 };
 
 } //namespace saber
