@@ -258,11 +258,14 @@ public:
                           _params[param_index], strategy, implenum, ctx);
             for(int iter=0; iter<1; ++iter){
                 _outputs_dev[input_index][0]->copy_from(*_outputs_host[input_index][0]);
+                print_tensor(_inputs_dev[input_index][0]);
+                print_tensor(_outputs_dev[input_index][0]);
                 status= _base_op(_inputs_dev[input_index], _outputs_dev[input_index],
                                  _params[param_index], ctx);
                 if(status == SaberUnImplError){
                     return status;
                 }
+                print_tensor(_outputs_dev[input_index][0]);
                 typename TensorD :: API :: stream_t stream = ctx.get_compute_stream();
                 _outputs_dev[input_index][0] -> record_event(stream);
                 _outputs_dev[input_index][0] -> sync();
