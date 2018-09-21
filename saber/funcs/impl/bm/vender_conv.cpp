@@ -268,7 +268,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
     CHECK_EQ(BM_SUCCESS, bm_stat) << "bmkernel_launch failed.";
 
     LOG(INFO)<<"BM Conv starts...";
-    print_tensor(input[0]);
+    print_tensor(inputs[0]);
     print_tensor(outputs[0]);
     
     /* Send arguments. */
