@@ -227,7 +227,6 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
         dilation_w,
         0};
 
-    bm_device_mem_t input_buf_mem = in_data;
     // TODO: handle special case with pooling op
 
     conv_secs_info_t secs_info;
@@ -236,7 +235,7 @@ SaberStatus VenderConv2D<BM, AK_FLOAT>::\
     CHECK_EQ(BM_SUCCESS, result) << "local memory is not enough in conv.";
 
     bm_api_conv_forward bm_conv_param = {
-      bm_mem_get_device_addr(input_buf_mem),
+      bm_mem_get_device_addr(in_data),
       bm_mem_get_device_addr(out_data),
       bm_mem_get_device_addr(weight),
       with_bias ? bm_mem_get_device_addr(bias) : BM_MEM_ADDR_NULL,
