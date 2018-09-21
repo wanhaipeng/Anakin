@@ -172,7 +172,13 @@ private:
 #endif
 #ifdef USE_BM_PLACE
     bm_handle_t _bm_handle;
+
+    ~Context() 
+    { 
+        bmkernel_deinit(_bm_handle);
+    } 
 #endif
+
 };
 
 } //namespace saber
