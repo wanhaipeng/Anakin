@@ -2,6 +2,7 @@
 #include "saber/funcs/impl/bm/vender_conv.h"
 #include "bmkernel_base.h"
 #include "bm_common.h"
+#include "tensor_op.h"
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
